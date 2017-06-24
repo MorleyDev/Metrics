@@ -7,9 +7,9 @@ namespace MorleyDev.Metrics
 {
 	public static class ServiceExtensions
 	{
-		public static IServiceCollection AddTelegrafMetrics(this IServiceCollection self, Func<TelegrafConfig> getConfig)
+		public static IServiceCollection AddTelegrafMetrics(this IServiceCollection self, Func<IServiceProvider, TelegrafConfig> getConfig)
 		{
-			return self.AddScoped<IMetricsService>(services => new MetricsServiceTelegrafImpl(getConfig()));
+			return self.AddScoped<IMetricsService>(services => new MetricsServiceTelegrafImpl(getConfig(services)));
 		}
 	}
 }
