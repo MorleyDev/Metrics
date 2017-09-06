@@ -31,7 +31,11 @@ namespace MorleyDev.Metrics.Impl
 
 			Task.Run(() =>
 			{
-				var values = string.Join(" ", extras.Select(k => $"{k.Key}={k.Value}i").Concat(new[] { $"ms={milliseconds}" }).ToArray());
+				var extraStr = extras
+					.Select(k => $"{k.Key}={k.Value}i")
+					.Concat(new[] { $"ms={milliseconds}" })
+					.ToArray();
+				var values = string.Join(" ", extraStr);
 
 				return SendDatagram($"{key},app={_config.App} {values} {timeStamp}");
 			});
@@ -53,14 +57,10 @@ namespace MorleyDev.Metrics.Impl
 		}
 
 		private static long GetTimeStamp()
-		{
-			return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000000;
-		}
+			=> DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 1000000;
 
 		private Task SendDatagram(string datagram)
-		{
-			return SendDatagram(Encoding.UTF8.GetBytes(datagram));
-		}
+			=> SendDatagram(Encoding.UTF8.GetBytes(datagram));
 
 		private async Task SendDatagram(byte[] datagram)
 		{
@@ -71,9 +71,12 @@ namespace MorleyDev.Metrics.Impl
 		}
 
 		public IDisposable Timed(string name)
-			=> _config.Enabled ? MakeMetricsTimer(name) : new NullDisposable();
+			=> _config.Enabled
+				? MakeMetricsTimer(name)
+				: new NullDisposable();
 
-		private IDisposable MakeMetricsTimer(string name) => new MetricsTimer(name, _config.App, this);
+		private IDisposable MakeMetricsTimer(string name)
+			=> new MetricsTimer(name, _config.App, this);
 
 		private class MetricsTimer : IDisposable
 		{
